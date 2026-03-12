@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo Torakku - Repuestos Sprinter</title>
+
+<style>
+
+:root{
+--primary-blue:#d10000;
+--secondary-blue:#ff3b3b;
+--dark-bg:#000;
+--light-bg:#f8f9fa;
+--white:#fff;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    /* Degradado llamativo: Rojo Torakku a Naranja Vibrante */
+    background: linear-gradient(180deg, #d10000 0%, #ea2424 50%, #ea922f 100%);
+    background-attachment: fixed; /* Esto hace que el color cambie visualmente al bajar */
+    background-size: cover;
+    color: #333;
+    margin: 0;
+}
+
+/* PANTALLA INICIAL */
+
+.welcome-screen{
+height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+background:var(--dark-bg);
+border-bottom:10px solid var(--primary-blue);
+text-align:center;
+}
+
+.brand-name{
+font-size:clamp(3rem,12vw,7rem);
+font-weight:900;
+color:white;
+letter-spacing:-2px;
+text-transform:uppercase;
+line-height:.8;
+}
+
+.brand-name span{color:var(--primary-blue)}
+
+.brand-subtitle{
+font-size:1.1rem;
+color:var(--secondary-blue);
+letter-spacing:6px;
+text-transform:uppercase;
+margin-top:15px;
+}
+
+.scroll-indicator{
+margin-top:50px;
+font-size:1.2rem;
+color:white;
+animation:bounce 2s infinite;
+}
+
+@keyframes bounce{
+0%,20%,50%,80%,100%{transform:translateY(0)}
+40%{transform:translateY(-10px)}
+}
+
+/* FILTROS */
+
+.filter-nav{
+position:sticky;
+top:0;
+background:rgba(255,255,255,.98);
+backdrop-filter:blur(5px);
+padding:15px;
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:10px;
+z-index:1000;
+box-shadow:0 2px 15px rgba(0,0,0,.1);
+}
+
+.filter-btn{
+padding:10px 18px;
+border:2px solid var(--primary-blue);
+background:transparent;
+color:var(--primary-blue);
+border-radius:4px;
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+text-transform:uppercase;
+font-size:.8rem;
+}
+
+.filter-btn:hover,
+.filter-btn.active{
+background:var(--primary-blue);
+color:white;
+}
+
+#searchInput{
+width:100%;
+max-width:400px;
+padding:12px;
+border:2px solid var(--primary-blue);
+border-radius:4px;
+outline:none;
+font-family:inherit;
+}
+
+#contador{
+width:100%;
+text-align:center;
+font-size:.9rem;
+}
+
+/* GRID */
+
+.catalog-container{
+max-width:1200px;
+margin:40px auto;
+padding:0 20px;
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+gap:25px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95); /* Blanco ligeramente transparente */
+    border: none;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: .3s;
+    border-radius: 8px; /* Bordes redondeados para que se vea más moderno */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más marcada */
+}
+
+.card:hover{
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+border-color:var(--primary-blue);
+transform:translateY(-5px);
+}
+
+.card-tag{
+position:absolute;
+top:10px;
+right:10px;
+font-size:10px;
+background:#f0f0f0;
+padding:2px 8px;
+border-radius:10px;
+color:#666;
+font-weight:bold;
+}
+
+.card-img{
+width:100%;
+height:180px;
+object-fit:contain;
+margin-bottom:15px;
+background:#fafafa;
+padding:10px;
+border-bottom:1px solid #eee;
+transition:transform .25s ease;
+}
+
+.card:hover .card-img{
+transform:scale(1.05);
+}
+
+.card-img-placeholder{
+width:100%;
+height:180px;
+background:#f2f2f2;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:12px;
+color:#999;
+border-bottom:1px solid #eee;
+}
+
+.card-title{
+font-size:.95rem;
+font-weight:700;
+margin-bottom:15px;
+min-height:50px;
+display:flex;
+align-items:center;
+text-transform:uppercase;
+}
+
+.btn-wa{
+background:#1a1a1a;
+color:white;
+text-decoration:none;
+text-align:center;
+padding:12px;
+font-size:.8rem;
+font-weight:bold;
+border-radius:2px;
+transition:.3s;
+letter-spacing:1px;
+}
+
+.btn-wa:hover{
+background:var(--primary-blue);
+}
+
+.hidden{display:none}
+
+footer{
+padding:60px 20px;
+background:black;
+color:white;
+text-align:center;
+}
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+z-index:2000;
+}
+
+.modal-content{
+background:white;
+padding:30px;
+max-width:400px;
+width:90%;
+border-radius:10px;
+text-align:center;
+position:relative;
+animation:aparecer .3s ease;
+}
+
+@keyframes aparecer{
+from{transform:scale(.8);opacity:0}
+to{transform:scale(1);opacity:1}
+}
+
+.cerrarModal{
+position:absolute;
+top:10px;
+right:15px;
+font-size:22px;
+cursor:pointer;
+font-weight:bold;
+}
+
+#modalImg{
+width:100%;
+height:220px;
+object-fit:contain;
+margin-bottom:15px;
+}
+
+.modal-precio{
+font-size:28px;
+font-weight:900;
+color:#004fb3;
+margin:15px 0;
+}
+
+</style>
+</head>
+
+<body>
+   <div id="modalProducto" class="modal">
+
+<div class="modal-content">
+
+<span class="cerrarModal" onclick="cerrarModal()">✕</span>
+
+<img id="modalImg">
+
+<h2 id="modalNombre"></h2>
+
+<div class="modal-precio" id="modalPrecio"></div>
+
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+<section class="welcome-screen">
+<h1 class="brand-name">TORA<span>KK</span>U</h1>
+<div class="brand-subtitle">Importaciones & Servicios</div>
+<div class="scroll-indicator">DESCUBRE EL CATÁLOGO ↓</div>
+</section>
+
+<nav id="catalog-nav" class="filter-nav">
+
+<button class="filter-btn active" onclick="filter('all')">Todos</button>
+<button class="filter-btn" onclick="filter('313')">Sprinter 313</button>
+<button class="filter-btn" onclick="filter('515')">Sprinter 515-516</button>
+
+<input type="text" id="searchInput" onkeyup="filter()" placeholder="Escribe el repuesto que buscas...">
+
+<div id="contador"></div>
+
+</nav>
+
+<section class="catalog-container" id="catalogContainer"></section>
+
+<footer>
+<div style="font-size:1.8rem;font-weight:900;margin-bottom:10px;">TORAKKU</div>
+<p>Importaciones y Servicios SpA.</p>
+<div style="margin-top:25px;font-size:.9rem;opacity:.8">
+📞 +56 9 43592844 | 📧 torakku@gmail.com
+</div>
+</footer>
+
+<script>
+
+const productos = [
+
+{modelo:"313",nombre:"Filtro de Aire 313",imagen:"./img/filtro-aire-313.png", precio:"$29.990"},
+{modelo:"313",nombre:"Filtro de combustible 313",imagen:"img/filtro-combustible-313.jpg"},
+{modelo:"313",nombre:"Filtro de aceite 313",imagen:"img/filtro-aceite-313.jpg"},
+{modelo:"313",nombre:"Filtro de polvo 313",imagen:"img/filtro-polvo-313.jpg"},
+{modelo:"313",nombre:"Valvula de vacio turbo 313",imagen:"img/valvula-vacio-turbo-313.jpg"},
+{modelo:"313",nombre:"Correa de ventilador 313",imagen:"img/correa-ventilador-313.jpg"},
+{modelo:"313",nombre:"Tensor de correa 313",imagen:"img/tensor-correa-313.jpg"},
+{modelo:"313",nombre:"Rodillos de correa 313",imagen:"img/rodillos-correa-313.jpg"},
+{modelo:"313",nombre:"Viscoso 313",imagen:"img/viscoso-313.jpg"},
+{modelo:"313",nombre:"Bomba de agua 313",imagen:"img/bomba-agua-313.jpg"},
+{modelo:"313",nombre:"Radiador 313",imagen:"img/radiador-313.jpg"},
+{modelo:"313",nombre:"Amortiguadores Traseros 313",imagen:"img/amortiguadores-traseros-313.jpg"},
+{modelo:"313",nombre:"Amortiguadores Delanteros 313",imagen:"img/amortiguadores-delanteros-313.jpg"},
+{modelo:"313",nombre:"Disco de frenos delanteros 313",imagen:"img/disco-freno-delantero-313.jpg"},
+{modelo:"313",nombre:"Pastillas de frenos delanteros 313",imagen:"img/pastillas-freno-delantero-313.jpg"},
+{modelo:"313",nombre:"Pastillas de frenos traseros 313",imagen:"img/pastillas-freno-trasero-313.jpg"},
+{modelo:"313",nombre:"Bandeja de suspencion delantera derecha 313",imagen:"img/bandeja-der-313.jpg"},
+{modelo:"313",nombre:"Bandeja de suspencion delantera izquierda 313",imagen:"img/bandeja-izq-313.jpg"},
+{modelo:"313",nombre:"Conjunto de embrague 313",imagen:"img/embrague-313.jpg"},
+{modelo:"313",nombre:"Volante 313",imagen:"img/volante-313.jpg"},
+{modelo:"313",nombre:"Culata 313",imagen:"img/culata-313.jpg"},
+{modelo:"313",nombre:"Kit de empaquetadura de motor completo 313",imagen:"img/kit-empaquetadura-313.jpg"},
+{modelo:"313",nombre:"Intercooler 313",imagen:"img/intercooler-313.jpg"},
+{modelo:"313",nombre:"Turbo 313",imagen:"img/turbo-313.jpg"},
+{modelo:"313",nombre:"Manguera de intercooler 313",imagen:"img/manguera-intercooler-313.jpg"},
+{modelo:"313",nombre:"Bujia encandescente 313",imagen:"img/bujia-313.jpg"},
+{modelo:"313",nombre:"Valvula reguladora de presion del riel 313",imagen:"img/valvula-riel-313.jpg"},
+{modelo:"313",nombre:"Perno de fijacion del inyector 313",imagen:"img/perno-inyector-313.jpg"},
+{modelo:"313",nombre:"Inyectores 313",imagen:"img/inyectores-313.jpg"},
+{modelo:"313",nombre:"Golillas de inyector 313",imagen:"img/golilla-inyector-313.jpg"},
+{modelo:"313",nombre:"Plumilla limpia parabrisas 313",imagen:"img/plumilla-313.jpg"},
+{modelo:"313",nombre:"Bujes barra estabilizadora trasera 313",imagen:"img/buje-barra-313.jpg"},
+{modelo:"313",nombre:"Axiales de direccion 313",imagen:"img/axial-direccion-313.jpg"},
+{modelo:"313",nombre:"Terminales de direccion 313",imagen:"img/terminal-direccion-313.png"},
+{modelo:"313",nombre:"Bieleta barra estabilizadora delantera 313",imagen:"img/bieleta-313.jpg"},
+{modelo:"313",nombre:"Termostato 313",imagen:"img/termostato-313.jpg"},
+{modelo:"313",nombre:"Cilindro emisor de embrague 313",imagen:"img/cilindro-embrague-313.jpg"},
+{modelo:"313",nombre:"Rodamiento de empuje 313",imagen:"img/rodamiento-empuje-313.jpg"},
+{modelo:"313",nombre:"Bomba de aceite 313",imagen:"img/bomba-aceite-313.jpg"},
+{modelo:"313",nombre:"Enfriador de aceite 313",imagen:"img/enfriador-aceite-313.jpg"},
+{modelo:"313",nombre:"Bomba de calefaccion 313",imagen:"img/bomba-calefaccion-313.jpg"},
+
+{modelo:"515",nombre:"Filtro combustible 515-516",imagen:"img/filtro-combustible-515.jpg"},
+{modelo:"515",nombre:"Filtro aire 515-516",imagen:"img/filtro-aire-515.jpg"},
+{modelo:"515",nombre:"Filtro racor 515-516",imagen:"img/filtro-racor-515.jpg"},
+{modelo:"515",nombre:"Filtro aceite 515-516",imagen:"img/filtro-aceite-515.jpg"},
+{modelo:"515",nombre:"Filtro aire acondicionado 515-516",imagen:"img/filtro-polvo-515.jpg"},
+{modelo:"515",nombre:"Valvula vacio turbo 515-516",imagen:"img/valvula-turbo-515.jpg"},
+{modelo:"515",nombre:"Correa ventilador 515-516",imagen:"img/correa-515.jpg"},
+{modelo:"515",nombre:"Tensor correa 515-516",imagen:"img/tensor-515.jpg"},
+{modelo:"515",nombre:"Rodillos correa 515-516",imagen:"img/rodillos-515.jpg"},
+{modelo:"515",nombre:"Viscoso 515-516",imagen:"img/viscoso-515.jpg"},
+{modelo:"515",nombre:"Bomba agua 515-516",imagen:"img/bomba-agua-515.jpg"},
+{modelo:"515",nombre:"Radiador 515-516",imagen:"img/radiador-515.jpg"},
+{modelo:"515",nombre:"Amortiguadores delanteros 515-516",imagen:"img/amortiguadores-delanteros-515.jpg"},
+{modelo:"515",nombre:"Amortiguadores traseros 515-516",imagen:"img/amortiguadores-traseros-515.jpg"},
+{modelo:"515",nombre:"Disco freno delantero 515-516",imagen:"img/disco-delantero-515.jpg"},
+{modelo:"515",nombre:"Disco freno trasero 515-516",imagen:"img/disco-trasero-515.jpg"},
+{modelo:"515",nombre:"Pastillas freno 515-516",imagen:"img/pastillas-515.jpg"},
+{modelo:"515",nombre:"Balatas freno mano 515-516",imagen:"img/balatas-515.jpg"},
+{modelo:"515",nombre:"Bandeja suspension 515-516",imagen:"img/bandeja-515.jpg"},
+{modelo:"515",nombre:"Bomba direccion 515-516",imagen:"img/bomba-direccion-515.jpg"},
+{modelo:"515",nombre:"Conjunto embrague 515-516",imagen:"img/embrague-515.jpg"},
+{modelo:"515",nombre:"Volante 515-516",imagen:"img/volante-515.jpg"},
+{modelo:"515",nombre:"Culata 515-516",imagen:"img/culata-515.jpg"},
+{modelo:"515",nombre:"Kit empaquetadura motor 515-516",imagen:"img/kit-empaquetadura-515.jpg"},
+{modelo:"515",nombre:"Intercooler 515-516",imagen:"img/intercooler-515.jpg"},
+{modelo:"515",nombre:"Turbo 515-516",imagen:"img/turbo-515.jpg"},
+{modelo:"515",nombre:"Manguera intercooler 515-516",imagen:"img/manguera-515.jpg"},
+{modelo:"515",nombre:"Bujia incandescente 515-516",imagen:"img/bujia-515.jpg"},
+{modelo:"515",nombre:"Valvula reguladora riel 515-516",imagen:"img/valvula-riel-515.jpg"},
+{modelo:"515",nombre:"Inyectores 515-516",imagen:"img/inyectores-515.jpg"},
+{modelo:"515",nombre:"Golilla inyector 515-516",imagen:"img/golilla-515.jpg"},
+{modelo:"515",nombre:"Perno fijacion inyector 515-516",imagen:"img/perno-inyector-515.jpg"},
+{modelo:"515",nombre:"Plumilla limpia parabrisas 515-516",imagen:"img/plumilla-515.jpg"},
+{modelo:"515",nombre:"Buje barra estabilizadora trasero 515-516",imagen:"img/buje-515.jpg"},
+{modelo:"515",nombre:"Axiales direccion 515-516",imagen:"img/axial-515.jpg"},
+{modelo:"515",nombre:"Terminal direccion 515-516",imagen:"img/terminal-515.jpg"},
+{modelo:"515",nombre:"Buje bieleta estabilizadora 515-516",imagen:"img/bieleta-515.jpg"},
+{modelo:"515",nombre:"Multiple admision 515-516",imagen:"img/multiple-515.jpg"},
+{modelo:"515",nombre:"Electrovalvula turbo 515-516",imagen:"img/electrovalvula-515.jpg"},
+{modelo:"515",nombre:"Electrovalvula egr 515-516",imagen:"img/egr-515.jpg"},
+{modelo:"515",nombre:"Termostato 515-516",imagen:"img/termostato-515.jpg"},
+{modelo:"515",nombre:"Compresor aire acondicionado 515-516",imagen:"img/compresor-515.jpg"},
+{modelo:"515",nombre:"Masa delantera 515-516",imagen:"img/masa-delantera-515.jpg"},
+{modelo:"515",nombre:"Masa trasera 515-516",imagen:"img/masa-trasera-515.jpg"},
+{modelo:"515",nombre:"Cilindro emisor embrague 515-516",imagen:"img/cilindro-515.jpg"},
+{modelo:"515",nombre:"Rodamiento empuje 515-516",imagen:"img/rodamiento-515.jpg"},
+{modelo:"515",nombre:"Kit distribucion cadena 515-516",imagen:"img/distribucion-515.jpg"},
+{modelo:"515",nombre:"Bomba aceite 515-516",imagen:"img/bomba-aceite-515.jpg"},
+{modelo:"515",nombre:"Enfriador aceite 515-516",imagen:"img/enfriador-515.jpg"},
+{modelo:"515",nombre:"Porta filtro combustible 515-516",imagen:"img/porta-filtro-515.jpg"},
+{modelo:"515",nombre:"Tapa valvula 515-516",imagen:"img/tapa-valvula-515.jpg"},
+{modelo:"515",nombre:"Taques 515-516",imagen:"img/taques-515.jpg"},
+{modelo:"515",nombre:"Chupador aceite 515-516",imagen:"img/chupador-515.jpg"},
+{modelo:"515",nombre:"Deposito refrigerante 515-516",imagen:"img/deposito-515.jpg"},
+{modelo:"515",nombre:"Bomba calefaccion 515-516",imagen:"img/bomba-calefaccion-515.jpg"}
+
+];
+
+function generarCatalogo(){
+
+const container=document.getElementById("catalogContainer");
+const fragment=document.createDocumentFragment();
+
+productos.forEach(p=>{
+
+const card=document.createElement("div");
+card.className="card";
+card.setAttribute("data-model",p.modelo);
+
+card.innerHTML=`
+
+<span class="card-tag">MODELO ${p.modelo}</span>
+
+<img class="card-img" src="${p.imagen}"
+onerror="this.outerHTML='<div class=card-img-placeholder>Imagen no disponible</div>'">
+
+<h3 class="card-title">${p.nombre}</h3>
+
+<button class="btn-wa"
+onclick="verProducto('${p.nombre}','${p.imagen}','${p.precio || "Consultar"}')">
+VER DETALLES
+</button>
+
+`;
+
+fragment.appendChild(card);
+
+});
+
+container.appendChild(fragment);
+
+}
+
+let lastModel="all";
+
+window.onload=function(){
+
+generarCatalogo();
+filter("all");
+
+setTimeout(()=>{
+document.getElementById("catalog-nav")
+.scrollIntoView({behavior:"smooth"});
+},1800);
+
+};
+
+function filter(model){
+
+if(model) lastModel=model;
+
+const search=document
+.getElementById("searchInput")
+.value.toLowerCase();
+
+const cards=document.querySelectorAll(".card");
+
+let visibles=0;
+
+cards.forEach(card=>{
+
+const title=card
+.querySelector(".card-title")
+.textContent
+.toLowerCase();
+
+const modelCard=card.getAttribute("data-model");
+
+const matchModel=(lastModel==="all"||modelCard===lastModel);
+const matchSearch=title.includes(search);
+
+if(matchModel && matchSearch){
+
+card.classList.remove("hidden");
+visibles++;
+
+}else{
+
+card.classList.add("hidden");
+
+}
+
+});
+
+document.getElementById("contador")
+.innerText=visibles+" repuestos encontrados";
+
+document
+.getElementById("catalogContainer")
+.scrollIntoView({behavior:"smooth"});
+
+document
+.querySelectorAll(".filter-btn")
+.forEach(btn=>btn.classList.remove("active"));
+
+if(event && event.target.classList.contains("filter-btn")){
+event.target.classList.add("active");
+}
+
+}
+
+/* ===== MODAL PRODUCTO ===== */
+
+function verProducto(nombre,imagen,precio){
+
+document.getElementById("modalProducto").style.display="flex";
+
+document.getElementById("modalNombre").innerText=nombre;
+document.getElementById("modalPrecio").innerText=precio;
+document.getElementById("modalImg").src=imagen;
+
+}
+
+function cerrarModal(){
+
+document.getElementById("modalProducto").style.display="none";
+
+}
+
+</script>
+
+</body>
+</html>
